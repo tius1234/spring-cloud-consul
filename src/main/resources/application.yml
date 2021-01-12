@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sample-consul
+  cloud:
+    inetutils:
+      preferred-networks: # 선호 IP 주소 설정. (consul 서비스 등록에 사용)
+        - 192
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${random.value}
+        serviceName: ${spring.application.name}
+        acl-token: 58f20e05-d177-9683-4d4f-15914ce813d1
+        prefer-ip-address: true # hostname 대신 IP 주소를 사용.
+        register: true # consul 에 서비스로 등록할지 여부.
+        query-passing: true # health check 에 실패한 instance 정보는 가지고 오지 않는다.
+        health-check-critical-timeout: 30m # 30분 동안 health check 가 안될 경우, 서비스에서 제거.
+        catalog-services-watch-delay: 1000 # millis (default 1000) 등록된 서비스 모니터링. (실제 서비스에서는 기본 값을 이용)
+        health-check-interval: 10s # second (default 10s) health check 주기. (실제 서비스에서는 기본 값을 이용)
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,shutdown
